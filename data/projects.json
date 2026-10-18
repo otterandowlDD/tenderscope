@@ -1,0 +1,28 @@
+{
+  "snapshot_type": "historical_verified_case_study",
+  "live_feed": false,
+  "projects": [
+    {
+      "id": "smart-park-spillway",
+      "name_en": "Smart Park Spillway",
+      "name_th": "โครงการก่อสร้างฝายน้ำล้น (Spillway) เพื่อกั้นน้ำเข้าอ่างเก็บน้ำ (อ่าง A) ของสำนักงานนิคมอุตสาหกรรม Smart Park",
+      "agency": "สำนักงานนิคมอุตสาหกรรม Smart Park / IEAT",
+      "discipline": "Civil / Hydraulic structures",
+      "plan_id": "M69050004048",
+      "plan_reference": "P69050004570",
+      "procurement_id": "69059189511",
+      "plan_budget_thb": 500000,
+      "award_price_thb": 479550,
+      "plan_date": "2026-05-14",
+      "award_date": "2026-05-22",
+      "expected_procurement_month": "2026-05",
+      "method": "Specific selection (วิธีเฉพาะเจาะจง)",
+      "awarded_to": "ห้างหุ้นส่วนจำกัด เอสเค-ยูดี",
+      "status": "AWARD_ANNOUNCED",
+      "contract_signed": "UNVERIFIED",
+      "subcontract_available": "UNVERIFIED",
+      "plan_source": "https://process.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=M69050004048&templateType=P0&temp_Announ=P&temp_itemNo=&seqNo=",
+      "award_source": "https://process.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=69059189511&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"
+    }
+  ]
+}
