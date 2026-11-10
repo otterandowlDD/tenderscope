@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Construction Project Radar — TenderScope</title>
+<style>:root{font-family:system-ui,-apple-system,sans-serif;color:#182536;background:#f4f7fa}body{margin:0}main{max-width:1120px;margin:auto;padding:24px}h1{margin-bottom:5px}header p{color:#536374}.controls{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:12px;margin:25px 0}input,select{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:white;min-width:0}.stats{display:flex;gap:12px;flex-wrap:wrap}.stat{padding:15px 20px;background:white;border:1px solid #e2e8f0;border-radius:12px}.stat strong{display:block;font-size:24px}.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:12px 0}.meta{color:#64748b;font-size:13px}.tag{border-radius:6px;padding:3px 7px;background:#eff6ff;color:#1d4ed8;font-size:12px}.warning{color:#8a5600;background:#fff7dd;padding:10px 14px;border-radius:8px}.empty{text-align:center;padding:36px;background:white;border:1px dashed #94a3b8;border-radius:12px}a{color:#155e9c}button{cursor:pointer;border:1px solid #cbd5e1;background:white;border-radius:8px;padding:10px 15px}button:disabled{opacity:.5;cursor:not-allowed}@media(max-width:800px){.controls{grid-template-columns:1fr 1fr}}@media(max-width:520px){.controls{grid-template-columns:1fr}}</style></head>
+<body><main><header><a href="./index.html">← TenderScope</a><h1>🏗️ Construction Project Radar</h1><p>Early-stage investment and construction leads · Evidence first, no invented opportunities</p></header>
+<p class="warning">Research workspace. A planning announcement, EIA or investment approval does not confirm an open construction tender.</p>
+<div class="stats"><div class="stat"><strong id="total">0</strong>Reviewed records</div><div class="stat"><strong id="early">0</strong>Planning / EIA</div><div class="stat"><strong id="verified">0</strong>Verified-source records</div></div>
+<div class="controls"><input id="q" aria-label="Search projects" placeholder="Search project, owner, location…"><select id="province" aria-label="Province"><option value="">All provinces</option></select><select id="stage" aria-label="Stage"><option value="">All stages</option><option>PLANNING</option><option>EIA</option><option>PERMITTING</option><option>TENDER</option><option>AWARDED</option><option>CONSTRUCTION</option></select><select id="type" aria-label="Project type"><option value="">All types</option><option>FACTORY</option><option>WAREHOUSE</option><option>DATA_CENTER</option><option>INFRASTRUCTURE</option><option>HIGH_RISE</option><option>OTHER</option></select></div>
+<button id="csv">Export filtered CSV</button><section id="results" aria-live="polite"></section><p class="meta">Data: <a href="./data/opportunities.json">reviewed opportunities JSON</a>. Each record requires an official or traceable source URL, source date and review state.</p></main>
+<script>
+const fields=['project_id','project_name','owner','province','project_type','stage','source_url','source_date','review_status','next_action'];let records=[],filtered=[];
+const el=id=>document.getElementById(id);
+const safeLink=url=>{try{const u=new URL(url);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
+function textNode(tag,value,className){const n=document.createElement(tag);n.textContent=value??'';if(className)n.className=className;return n}
+function render(){
+ const q=el('q').value.trim().toLocaleLowerCase(),prov=el('province').value,stage=el('stage').value,type=el('type').value;
+ filtered=records.filter(r=>(!q||[r.project_name,r.owner,r.province,r.project_id].some(s=>String(s||'').toLocaleLowerCase().includes(q)))&&(!prov||r.province===prov)&&(!stage||r.stage===stage)&&(!type||r.project_type===type));
+ el('total').textContent=records.length;el('early').textContent=records.filter(r=>['PLANNING','EIA','PERMITTING'].includes(r.stage)).length;el('verified').textContent=records.filter(r=>r.review_status==='VERIFIED').length;
+ const root=el('results');root.replaceChildren();
+ if(!filtered.length){root.append(textNode('p',records.length?'No matching reviewed records.':'No verified opportunities have been added yet. This is not evidence that no projects exist.','empty'));return}
+ for(const r of filtered){
+ const card=document.createElement('article');card.className='card';card.append(textNode('h2',r.project_name||'Unnamed project'));
+ card.append(textNode('p',[r.owner,r.province,r.project_type].filter(Boolean).join(' · '),'meta'));
+ card.append(textNode('p',[`Stage: ${r.stage||'UNKNOWN'}`,`Review: ${r.review_status||'UNREVIEWED'}`,`Source date: ${r.source_date||'unknown'}`].join(' · '),'meta'));
+ if(r.next_action)card.append(textNode('p',`Next action: ${r.next_action}`));
+ const url=safeLink(r.source_url);if(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Open source ↗';card.append(a)}
+ root.append(card)
+ }
+}
+function csvCell(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
+el('csv').onclick=()=>{if(!filtered.length)return;const body=[fields.join(','),...filtered.map(r=>fields.map(f=>csvCell(r[f])).join(','))].join('\r\n');const blob=new Blob(['\ufeff'+body],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='construction-radar-reviewed.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+for(const id of ['q','province','stage','type'])el(id).addEventListener('input',render);
+fetch('./data/opportunities.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(d=>{records=Array.isArray(d.records)?d.records:[];const provinces=[...new Set(records.map(r=>r.province).filter(Boolean))].sort();for(const p of provinces){const opt=document.createElement('option');opt.value=p;opt.textContent=p;el('province').append(opt)}render()}).catch(e=>{el('results').replaceChildren(textNode('p','Could not load opportunities dataset: '+e.message,'warning'))});
+</script></body></html>
